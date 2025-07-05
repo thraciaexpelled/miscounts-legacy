@@ -1,0 +1,7 @@
+{
+  "name": "miscounts-legacy",
+  "version": "0.0.1-legacy",
+  "dependencies": {
+    "stephenmathieson/path-join.c": "0.0.6"
+  }
+}
