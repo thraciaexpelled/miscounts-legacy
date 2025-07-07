@@ -1,5 +1,5 @@
 CC=clang
-CFLAGS=-Wall -Wextra -Wpedantic -march=native -Iinclude/ -ferror-limit=5
+CFLAGS=-Wall -Wextra -Wpedantic -march=native -Iinclude/ -ferror-limit=5 -g -O0
 LDFLAGS=
 
 OUTFILE=miscounts-legacy
@@ -32,6 +32,10 @@ miscount.o: $(SRCDIR)miscount.c
 # Build main executable
 buildMain: buildDeps src/main.c
 	$(CC) -o $(OUTFILE) $(CFLAGS) src/main.c $(OBJS)
+
+# Install
+install: $(OUTFILE)
+	sudo install -m775 $(OUTFILE) /usr/local/bin/$(OUTFILE)
 
 # Clean up
 clean:

@@ -16,7 +16,7 @@
 #endif
 
 // -*- miscallaneous defines -*-
-#define MISCOUNT_VERSION "1.0.0-legacy"
+#define MISCOUNT_VERSION "1.0.1-legacy"
 
 int main(int argc, char **argv) {
 	if (argc < 2) {
@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
 	}
 
 	int c;
-  	while ((c = getopt(argc, argv, "m:n:d:v")) != -1) {
+  	while ((c = getopt(argc, argv, "m:n:d:ve")) != -1) {
     	switch (c) {
     		case 'm':
       			args->nameOfMiscount = strdup(optarg);
@@ -47,15 +47,10 @@ int main(int argc, char **argv) {
       			args->nameOfOffender = strdup(optarg);
       			break;
     		case 'd':
-      			if (strcmp(optarg, "!EDITOR") == 0) {
-        			furtheroptions->writeDescriptionInEditor = true;
-        			break;
-      			}
-
       			args->descriptionOfMiscount = strdup(optarg);
       			furtheroptions->writeDescriptionInEditor = false;
 
-      		break;
+      			break;
 
     		case 'v':
 	      		printf("%s\n", MISCOUNT_VERSION);
@@ -63,6 +58,10 @@ int main(int argc, char **argv) {
 		      	free(args);
 		      	free(furtheroptions);
 		      	return 0;
+
+		     case 'e':
+		     	furtheroptions->writeDescriptionInEditor = true;
+        		break;
     	}
   	}
 

@@ -83,8 +83,7 @@ static int mkMiscountPath() {
 static const char *inferGoodEditor() {
 	if (getenv("EDITOR") == NULL) {
 		#ifdef __WIN32
-			fprintf(stderr, "It appears that you're on a Windows-like environment "
-                    "without an $EDITOR variable set.\n");
+			fprintf(stderr, "It appears that you're on a Windows-like environment without an $EDITOR variable set.\n");
     		fprintf(stderr, "We'll set the default editor to Notepad for you.\n");
 
     		if (_putenv("EDITOR=notepad") != 0) {
@@ -134,7 +133,7 @@ static const char *buildCmd(char *cmd, char *args) {
 
 void miscount_init() {
 	if (!miscountPathExists()) {
-		printf("Creating %s\n", buildMiscountPath());
+		fprintf(stderr, "Creating %s\n", buildMiscountPath());
 		mkMiscountPath();
 	}
 }

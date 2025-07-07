@@ -12,3 +12,8 @@ Moreover, this program involves the usage of the C package manager, [clib](https
 ```
 clib install stephenmathieson/path-join.c
 ```
+
+## Known Bugs and oddities
+
+### Write description in `$EDITOR`
+Right now, I haven't been able to implement the feature to write description messages in another editor program. This is on the works.

@@ -1,3 +1,9 @@
+# macOS garbage
+.DS_Store
+
+# Program binary
+./miscounts-legacy
+
 # Clib
 deps/
 
