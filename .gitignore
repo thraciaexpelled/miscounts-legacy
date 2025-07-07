@@ -2,7 +2,7 @@
 .DS_Store
 
 # Program binary
-./miscounts-legacy
+miscounts-legacy
 
 # Clib
 deps/

@@ -59,9 +59,14 @@ int main(int argc, char **argv) {
 		      	free(furtheroptions);
 		      	return 0;
 
-		     case 'e':
+		    case 'e':
 		     	furtheroptions->writeDescriptionInEditor = true;
         		break;
+
+        	default:
+        		free(args);
+        		free(furtheroptions);
+        		return EXIT_BAD_ARGS;
     	}
   	}
 
