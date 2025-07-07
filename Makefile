@@ -1,5 +1,5 @@
 CC=clang
-CFLAGS=-Wall -Wextra -Wpedantic -march=native -Iinclude/
+CFLAGS=-Wall -Wextra -Wpedantic -march=native -Iinclude/ -ferror-limit=5
 LDFLAGS=
 
 OUTFILE=miscounts-legacy
@@ -9,10 +9,10 @@ INCDIR=include/
 DEPSDIR=deps/
 
 # Object files
-OBJS = a.o b.o c.o d.o
+OBJS = a.o b.o c.o d.o miscount.o
 
 # Build dependencies
-buildDeps: a.o b.o c.o d.o
+buildDeps: a.o b.o c.o d.o miscount.o
 
 a.o: $(DEPSDIR)strdup/strdup.c
 	$(CC) -c $(CFLAGS) $< -o $@
@@ -24,6 +24,9 @@ c.o: $(DEPSDIR)str-ends-with/str-ends-with.c
 	$(CC) -c $(CFLAGS) $< -o $@
 
 d.o: $(DEPSDIR)path-join/path-join.c
+	$(CC) -c $(CFLAGS) $< -o $@
+
+miscount.o: $(SRCDIR)miscount.c
 	$(CC) -c $(CFLAGS) $< -o $@
 
 # Build main executable

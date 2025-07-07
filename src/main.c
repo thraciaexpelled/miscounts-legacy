@@ -16,7 +16,7 @@
 #endif
 
 // -*- miscallaneous defines -*-
-#define MISCOUNT_VERSION "0.0.1-legacy"
+#define MISCOUNT_VERSION "1.0.0-legacy"
 
 int main(int argc, char **argv) {
 	if (argc < 2) {

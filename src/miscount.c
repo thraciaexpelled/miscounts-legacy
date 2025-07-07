@@ -6,12 +6,14 @@
 #include <string.h>
 #include <unistd.h>
 
-// -*- includes needed only for main.c -*-
+// -*- includes needed only for miscount.c -*-
 #include <sys/stat.h>
 #include <args.h>
 #include <errors.h>
+#include <miscount.h>
+#include <time.h>
 
-#include "deps/path_join/path-join.h"
+#include "../deps/path-join/path-join.h"
 
 static void exit_if_null(void *any, char *msg, int code) {
 	if (any == NULL) {
@@ -68,12 +70,11 @@ static int mkMiscountPath() {
 	FILE *miscountFile = fopen(miscountPath, "w");
 	// I/O errors need more than just a bullshit function macro
 	if (miscountFile == NULL) {
-		fprintf(stderr, "%s: %s\n", miscountPath, strerror(erno));
+		fprintf(stderr, "%s: %s\n", miscountPath, strerror(errno));
 		exit(EXIT_FILEIO_FAIL);
 	}
 
-	fprintf(miscountFile, "DateTime,Miscount,Name,Description");
-	fflush(miscountFile);
+	fprintf(miscountFile, "DateTime,Miscount,Name,Description\n");
 	fclose(miscountFile);
 
 	return 0;
@@ -118,7 +119,7 @@ static const char *buildCmd(char *cmd, char *args) {
 	char *buffer = malloc(sizeof(char*));
 	size_t bufsize = sizeof(buffer);
 
-	exit_if_null(retval, "Cannot build command\n", EXIT_CMD_BUILD_FAIL);
+	exit_if_null(buffer, "Cannot build command\n", EXIT_CMD_BUILD_FAILED);
 
 	if (snprintf(buffer, bufsize, "%s %s", cmd, args) >= bufsize) {
 		fprintf(stderr, "Output of built command was truncated\n");
@@ -132,16 +133,18 @@ static const char *buildCmd(char *cmd, char *args) {
 // ---- End of Static Functions ---- //
 
 void miscount_init() {
-	if (!miscountFileExists()) {
+	if (!miscountPathExists()) {
 		printf("Creating %s\n", buildMiscountPath());
 		mkMiscountPath();
 	}
 }
 
 int miscount_append_miscount(MiscountParams *m) {
-	FILE *miscountFIle = fopen(buildMiscountPath(), "a");
+	const char *miscountPath = buildMiscountPath();
+
+	FILE *miscountFile = fopen(miscountPath, "a");
 	if (miscountFile == NULL) {
-		fprintf(stderr, "%s: %s\n", miscountPath, strerror(erno));
+		fprintf(stderr, "%s: %s\n", miscountPath, strerror(errno));
 		return EXIT_FILEIO_FAIL;
 	}
 
@@ -152,28 +155,23 @@ int miscount_append_miscount(MiscountParams *m) {
 
     time(&raw_time);
     local_time_info = localtime(&raw_time);
-
     strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", local_time_info);
-
-    fprintf(miscountFile, "%s", buffer);
-    fflush(miscountFile);
+    fprintf(miscountFile, "%s,", buffer);
 
 	// Miscount
 	const char *nom = strdup(m->a->nameOfMiscount);
-	fprintf(miscountFile, "%s", strreplace(nom, ",", " AND/OR "));
-	fflush(miscountFile);
+	fprintf(miscountFile, "%s,", strreplace(nom, ",", " AND/OR "));
 
 	// Name of Offender
 	const char *noo = strdup(m->a->nameOfOffender);
-	fprintf(miscountFile, "%s", strreplace(noo, ",", " AND/OR "));
-	fflush(miscountFile);
+	fprintf(miscountFile, "%s,", strreplace(noo, ",", " AND/OR "));
 
 	// Description of Miscount
 	const char *miscountDescription = strdup(m->a->descriptionOfMiscount);
-	const char *sanitizedMiscountDescription = strreplace(miscountPath, ",", " AND/OR ");
+	const char *sanitizedMiscountDescription = strreplace(miscountDescription, ",", " AND/OR ");
 
 	if (m->b->writeDescriptionInEditor == false) {
-		fprintf(miscountFile, "%s", sanitizedMiscountDescription);
+		fprintf(miscountFile, "%s\n", sanitizedMiscountDescription);
 	} else {
 		// uh oh
 		const char *cmd = buildCmd(inferGoodEditor(), ".miscount_tmp");
@@ -210,7 +208,7 @@ int miscount_append_miscount(MiscountParams *m) {
 		free(cmd);
 	}
 
-	fclose(misccountFile);
+	fclose(miscountFile);
 
 	return 0;
 }
