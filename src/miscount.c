@@ -1,3 +1,7 @@
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wincompatible-pointer-types-discards-qualifiers"
+#pragma clang diagnostic ignored "-Wstrict-prototypes"
+
 // -*- includes needed generally -*-
 #include <errno.h>
 #include <stdbool.h>
@@ -8,12 +12,15 @@
 
 // -*- includes needed only for miscount.c -*-
 #include <sys/stat.h>
+
 #include <args.h>
 #include <errors.h>
 #include <miscount.h>
+#include <stdarg.h>
 #include <time.h>
 
 #include "../deps/path-join/path-join.h"
+
 
 static void exit_if_null(void *any, char *msg, int code) {
 	if (any == NULL) {
@@ -37,7 +44,7 @@ static inline const char *getUserHomeDir() {
 }
 
 // check comment inside the function for more information
-int __bmp_tries = 10;
+static int __bmp_tries = 10;
 static inline const char *buildMiscountPath() {
 	const char *home = getUserHomeDir();
 
@@ -83,6 +90,7 @@ static int mkMiscountPath() {
 static const char *inferGoodEditor() {
 	if (getenv("EDITOR") == NULL) {
 		#ifdef __WIN32
+		/*
 			fprintf(stderr, "It appears that you're on a Windows-like environment without an $EDITOR variable set.\n");
     		fprintf(stderr, "We'll set the default editor to Notepad for you.\n");
 
@@ -93,8 +101,11 @@ static const char *inferGoodEditor() {
     		}
 
     		return "notepad";
+    	*/
+    		fprintf(stderr, "Not implemeted for Windows yet!\n");
+    		exit(-1);
     	#else
-    		return "nano";
+    		return "vi";
     	#endif
 	}
 
@@ -115,18 +126,43 @@ static char *strreplace(char *s, const char *s1, const char *s2) {
 }
 
 static const char *buildCmd(char *cmd, char *args) {
-	char *buffer = malloc(sizeof(char*));
-	size_t bufsize = sizeof(buffer);
-
-	exit_if_null(buffer, "Cannot build command\n", EXIT_CMD_BUILD_FAILED);
-
-	if (snprintf(buffer, bufsize, "%s %s", cmd, args) >= bufsize) {
-		fprintf(stderr, "Output of built command was truncated\n");
-		free(buffer);
-		exit(EXIT_BUILT_CMD_TRUNCATED);
+	char *buffer = malloc(MISCOUNT_BUILD_CMD_MAX_BUFSIZE);
+	if (buffer < MISCOUNT_BUILD_CMD_MAX_BUFSIZE) {
+		fprintf(stderr, "Cannot allocate memory for buffer\n");
+		exit(EXIT_MEM_ERROR);
 	}
 
+	sprintf(buffer, "%s %s", cmd, args);
+
 	return buffer;
+}
+
+// Thanks, Vishwesh Pujari!
+static int remove_line_from_file(FILE* fp, int bytes) {
+    char byte;
+    long readPos = ftell(fp) + bytes, writePos = ftell(fp), startingPos = writePos;
+    // start reading from the position which comes after the bytes to be deleted
+    fseek(fp, readPos, SEEK_SET);
+    while (fread(&byte, sizeof(byte), 1, fp)) {
+        // modify readPos as we have read right now
+        readPos = ftell(fp);
+        // set file position to writePos as we are going to write now
+        fseek(fp, writePos, SEEK_SET);
+        
+        // if file doesn't have write permission
+        if (fwrite(&byte, sizeof(byte), 1, fp) == 0) 
+            return errno;
+        // modify writePos as we have written right now
+        writePos = ftell(fp);
+        // set file position for reading
+        fseek(fp, readPos, SEEK_SET);
+    }
+
+    // truncate file size to remove the unnecessary ending bytes
+    ftruncate(fileno(fp), writePos);
+    // reset file position to the same position that we got when function was called.
+    fseek(fp, startingPos, SEEK_SET); 
+    return 0;
 }
 
 // ---- End of Static Functions ---- //
@@ -166,10 +202,9 @@ int miscount_append_miscount(MiscountParams *m) {
 	fprintf(miscountFile, "%s,", strreplace(noo, ",", " AND/OR "));
 
 	// Description of Miscount
-	const char *miscountDescription = strdup(m->a->descriptionOfMiscount);
-	const char *sanitizedMiscountDescription = strreplace(miscountDescription, ",", " AND/OR ");
-
 	if (m->b->writeDescriptionInEditor == false) {
+		const char *miscountDescription = strdup(m->a->descriptionOfMiscount);
+		const char *sanitizedMiscountDescription = strreplace(miscountDescription, ",", " AND/OR ");
 		fprintf(miscountFile, "%s\n", sanitizedMiscountDescription);
 	} else {
 		// uh oh
@@ -180,7 +215,7 @@ int miscount_append_miscount(MiscountParams *m) {
 		// read contents of tempfile and put it into miscounts.csv
 		FILE *tmp = fopen(".miscount_tmp", "r");
 		if (tmp == NULL) {
-			fprintf(stderr, ".miscount_tmp: %s\n", strerror(errno));
+			fprintf(stderr, "Cannot open .miscount_tmp: %s\n", strerror(errno));
 			return 1;
 		}
 
@@ -204,10 +239,12 @@ int miscount_append_miscount(MiscountParams *m) {
 		}
 
 		free(tmpbuf);
-		free(cmd);
+		// free(cmd);
 	}
 
 	fclose(miscountFile);
 
 	return 0;
 }
+
+#pragma clang diagnostic pop

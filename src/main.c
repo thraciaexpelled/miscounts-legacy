@@ -10,13 +10,14 @@
 #include <errors.h>
 #include <miscount.h>
 
+
 // NOTE: this only works with MSYS. for MSVC, install a getopt port from vcpkg
 #ifdef __WIN32
 #include <getopt.h>
 #endif
 
 // -*- miscallaneous defines -*-
-#define MISCOUNT_VERSION "1.0.1-legacy"
+#define MISCOUNT_VERSION "1.0.2-legacy"
 
 int main(int argc, char **argv) {
 	if (argc < 2) {
