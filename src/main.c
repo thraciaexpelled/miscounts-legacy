@@ -16,9 +16,6 @@
 #include <getopt.h>
 #endif
 
-// -*- miscallaneous defines -*-
-#define MISCOUNT_VERSION "1.0.2-legacy"
-
 int main(int argc, char **argv) {
 	if (argc < 2) {
 		fprintf(stderr, "Usage: miscount -m <Miscount> -n <Name> -d <Short Description>\n");

@@ -168,6 +168,9 @@ static int remove_line_from_file(FILE* fp, int bytes) {
 // ---- End of Static Functions ---- //
 
 void miscount_init() {
+	printf("miscounts-legacy %s\n", MISCOUNT_VERSION);
+	fprintf(stderr, "(C) gushtichudi/thraciaexpelled 2025, All rights reserved\n\n");
+
 	if (!miscountPathExists()) {
 		fprintf(stderr, "Creating %s\n", buildMiscountPath());
 		mkMiscountPath();
