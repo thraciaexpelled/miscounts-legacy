@@ -31,15 +31,15 @@ static void exit_if_null(void *any, char *msg, int code) {
 
 static inline const char *getUserHomeDir() {
 	#ifdef __WIN32
-  		char homeDir[MAX_PATH];
-  		if (GetEnvironmentVariable("USERPROFILE", homeDir, MAX_PATH)) {
-    		return homeDir;
-  		} else {
-    		fprintf(stderr, "miscount: cannot get home directory\n");
-    		exit(-1);
-  		}
+		char homeDir[MAX_PATH];
+		if (GetEnvironmentVariable("USERPROFILE", homeDir, MAX_PATH)) {
+			return homeDir;
+		} else {
+			fprintf(stderr, "miscount: cannot get home directory\n");
+			exit(-1);
+		}
 	#else
-  		return getenv("HOME");
+		return getenv("HOME");
 	#endif
 }
 
@@ -92,21 +92,21 @@ static const char *inferGoodEditor() {
 		#ifdef __WIN32
 		/*
 			fprintf(stderr, "It appears that you're on a Windows-like environment without an $EDITOR variable set.\n");
-    		fprintf(stderr, "We'll set the default editor to Notepad for you.\n");
+			fprintf(stderr, "We'll set the default editor to Notepad for you.\n");
 
-    		if (_putenv("EDITOR=notepad") != 0) {
-      			fprintf(stderr, "miscount: cannot add environment variable: %s\n",
-              	strerror(errno));
-      			exit(-1);
-    		}
+			if (_putenv("EDITOR=notepad") != 0) {
+				fprintf(stderr, "miscount: cannot add environment variable: %s\n",
+				strerror(errno));
+				exit(-1);
+			}
 
-    		return "notepad";
-    	*/
-    		fprintf(stderr, "Not implemeted for Windows yet!\n");
-    		exit(-1);
-    	#else
-    		return "vi";
-    	#endif
+			return "notepad";
+		*/
+			fprintf(stderr, "Not implemeted for Windows yet!\n");
+			exit(-1);
+		#else
+			return "vi";
+		#endif
 	}
 
 	return getenv("EDITOR");
@@ -114,15 +114,15 @@ static const char *inferGoodEditor() {
 
 // Thanks, chqrlie!
 static char *strreplace(char *s, const char *s1, const char *s2) {
-    char *p = strstr(s, s1);
-    if (p != NULL) {
-        size_t len1 = strlen(s1);
-        size_t len2 = strlen(s2);
-        if (len1 != len2)
-            memmove(p + len2, p + len1, strlen(p + len1) + 1);
-        memcpy(p, s2, len2);
-    }
-    return s;
+	char *p = strstr(s, s1);
+	if (p != NULL) {
+		size_t len1 = strlen(s1);
+		size_t len2 = strlen(s2);
+		if (len1 != len2)
+			memmove(p + len2, p + len1, strlen(p + len1) + 1);
+		memcpy(p, s2, len2);
+	}
+	return s;
 }
 
 static const char *buildCmd(char *cmd, char *args) {
@@ -139,30 +139,30 @@ static const char *buildCmd(char *cmd, char *args) {
 
 // Thanks, Vishwesh Pujari!
 static int remove_line_from_file(FILE* fp, int bytes) {
-    char byte;
-    long readPos = ftell(fp) + bytes, writePos = ftell(fp), startingPos = writePos;
-    // start reading from the position which comes after the bytes to be deleted
-    fseek(fp, readPos, SEEK_SET);
-    while (fread(&byte, sizeof(byte), 1, fp)) {
-        // modify readPos as we have read right now
-        readPos = ftell(fp);
-        // set file position to writePos as we are going to write now
-        fseek(fp, writePos, SEEK_SET);
-        
-        // if file doesn't have write permission
-        if (fwrite(&byte, sizeof(byte), 1, fp) == 0) 
-            return errno;
-        // modify writePos as we have written right now
-        writePos = ftell(fp);
-        // set file position for reading
-        fseek(fp, readPos, SEEK_SET);
-    }
+	char byte;
+	long readPos = ftell(fp) + bytes, writePos = ftell(fp), startingPos = writePos;
+	// start reading from the position which comes after the bytes to be deleted
+	fseek(fp, readPos, SEEK_SET);
+	while (fread(&byte, sizeof(byte), 1, fp)) {
+		// modify readPos as we have read right now
+		readPos = ftell(fp);
+		// set file position to writePos as we are going to write now
+		fseek(fp, writePos, SEEK_SET);
+		
+		// if file doesn't have write permission
+		if (fwrite(&byte, sizeof(byte), 1, fp) == 0) 
+			return errno;
+		// modify writePos as we have written right now
+		writePos = ftell(fp);
+		// set file position for reading
+		fseek(fp, readPos, SEEK_SET);
+	}
 
-    // truncate file size to remove the unnecessary ending bytes
-    ftruncate(fileno(fp), writePos);
-    // reset file position to the same position that we got when function was called.
-    fseek(fp, startingPos, SEEK_SET); 
-    return 0;
+	// truncate file size to remove the unnecessary ending bytes
+	ftruncate(fileno(fp), writePos);
+	// reset file position to the same position that we got when function was called.
+	fseek(fp, startingPos, SEEK_SET); 
+	return 0;
 }
 
 // ---- End of Static Functions ---- //
@@ -188,13 +188,13 @@ int miscount_append_miscount(MiscountParams *m) {
 
 	// DateTime
 	time_t raw_time;
-    struct tm *local_time_info;
-    char buffer[80]; 
+	struct tm *local_time_info;
+	char buffer[80]; 
 
-    time(&raw_time);
-    local_time_info = localtime(&raw_time);
-    strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", local_time_info);
-    fprintf(miscountFile, "%s,", buffer);
+	time(&raw_time);
+	local_time_info = localtime(&raw_time);
+	strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", local_time_info);
+	fprintf(miscountFile, "%s,", buffer);
 
 	// Miscount
 	const char *nom = strdup(m->a->nameOfMiscount);

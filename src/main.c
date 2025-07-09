@@ -36,50 +36,50 @@ int main(int argc, char **argv) {
 	}
 
 	int c;
-  	while ((c = getopt(argc, argv, "m:n:d:ve")) != -1) {
-    	switch (c) {
-    		case 'm':
-      			args->nameOfMiscount = strdup(optarg);
-      			break;
-    		case 'n':
-      			args->nameOfOffender = strdup(optarg);
-      			break;
-    		case 'd':
-      			args->descriptionOfMiscount = strdup(optarg);
-      			furtheroptions->writeDescriptionInEditor = false;
+	while ((c = getopt(argc, argv, "m:n:d:ve")) != -1) {
+		switch (c) {
+			case 'm':
+				args->nameOfMiscount = strdup(optarg);
+				break;
+			case 'n':
+				args->nameOfOffender = strdup(optarg);
+				break;
+			case 'd':
+				args->descriptionOfMiscount = strdup(optarg);
+				furtheroptions->writeDescriptionInEditor = false;
 
-      			break;
+				break;
 
-    		case 'v':
-	      		printf("%s\n", MISCOUNT_VERSION);
+			case 'v':
+				printf("%s\n", MISCOUNT_VERSION);
 
-		      	free(args);
-		      	free(furtheroptions);
-		      	return 0;
+				free(args);
+				free(furtheroptions);
+				return 0;
 
-		    case 'e':
-		     	furtheroptions->writeDescriptionInEditor = true;
-        		break;
+			case 'e':
+				furtheroptions->writeDescriptionInEditor = true;
+				break;
 
-        	default:
-        		free(args);
-        		free(furtheroptions);
-        		return EXIT_BAD_ARGS;
-    	}
-  	}
+			default:
+				free(args);
+				free(furtheroptions);
+				return EXIT_BAD_ARGS;
+		}
+	}
 
-  	MiscountParams *miscountParams = malloc((sizeof(Args*)) + (sizeof(FurtherOptions*)));
-  	if (miscountParams == NULL) return -1;
+	MiscountParams *miscountParams = malloc((sizeof(Args*)) + (sizeof(FurtherOptions*)));
+	if (miscountParams == NULL) return -1;
 
-  	miscountParams->a = args;
-  	miscountParams->b = furtheroptions;
+	miscountParams->a = args;
+	miscountParams->b = furtheroptions;
 
-  	miscount_init();
-  	if (miscount_append_miscount(miscountParams) != 0) return 1;
+	miscount_init();
+	if (miscount_append_miscount(miscountParams) != 0) return 1;
 
-  	free(args);
-  	free(furtheroptions);
-  	free(miscountParams);
+	free(args);
+	free(furtheroptions);
+	free(miscountParams);
 
-  	return 0;
+	return 0;
 }
