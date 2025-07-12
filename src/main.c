@@ -16,6 +16,19 @@
 #include <getopt.h>
 #endif
 
+static void print_help() {
+  printf("miscounts-legacy - log miscounts and other events\n");
+  printf("\n\n\t-m -> name of miscount\n");
+  printf("\t-n -> name of offender\n");
+  printf("\t-d -> description of miscount\n");
+  printf("\t\tNOTE: description can be written in the system's default text editor instead by replacing the flag with `-e`\n");
+  printf("\t-v -> shows program version\n");
+  printf("\t-h -> shows this message\n\n");
+  printf("* a miscounts.csv file is created in your $HOME/Documents folder if none is detected\n");
+  printf("* this program doesn't confirm whether an existing miscounts.csv file is the one created my miscounts-legacy.\n");
+  printf("  * this means in a scenario, if you happened to have a miscounts.csv file prior to installing this program, it will just append miscounts to that existing file. Stay Safe.\n");
+}
+
 int main(int argc, char **argv) {
 	if (argc < 2) {
 		fprintf(stderr, "Usage: miscount -m <Miscount> -n <Name> -d <Short Description>\n");
@@ -36,7 +49,7 @@ int main(int argc, char **argv) {
 	}
 
 	int c;
-	while ((c = getopt(argc, argv, "m:n:d:ve")) != -1) {
+	while ((c = getopt(argc, argv, "m:n:d:vhe")) != -1) {
 		switch (c) {
 			case 'm':
 				args->nameOfMiscount = strdup(optarg);
@@ -56,6 +69,13 @@ int main(int argc, char **argv) {
 				free(args);
 				free(furtheroptions);
 				return 0;
+
+      case 'h':
+        print_help();
+
+        free(args);
+        free(furtheroptions);
+        return 0;
 
 			case 'e':
 				furtheroptions->writeDescriptionInEditor = true;
