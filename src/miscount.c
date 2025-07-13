@@ -44,17 +44,17 @@ static inline const char *getUserHomeDir() {
 }
 
 static inline bool userDocumentsDirExists() {
-  struct stat s;
-  if (stat(path_join(getUserHomeDir(), "Documents"), &s) != 0) return false;
-  return true;
+	struct stat s;
+	if (stat(path_join(getUserHomeDir(), "Documents"), &s) != 0) return false;
+	return true;
 }
 
 static inline void makeUserDocumentsDir() {
-  const char *path = path_join(getUserHomeDir(), "Documents");
-  if (mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) != 0) {
-	fprintf(stderr, "%s: %s\n", path, strerror(errno));
-	exit(EXIT_FILEIO_FAIL);
-  }
+	const char *path = path_join(getUserHomeDir(), "Documents");
+	if (mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) != 0) {
+		fprintf(stderr, "%s: %s\n", path, strerror(errno));
+		exit(EXIT_FILEIO_FAIL);
+	}
 }
 
 // check comment inside the function for more information
