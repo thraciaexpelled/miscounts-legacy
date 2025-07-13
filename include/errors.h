@@ -7,7 +7,7 @@
 
 #define EXIT_NO_ARGS 				1
 #define EXIT_MEM_ERROR 				2
-#define EXIT_PROBABLY_NO_HOME 		3
+// #define EXIT_PROBABLY_NO_HOME 		3
 #define EXIT_CANT_RETRIEVE			4
 #define EXIT_FILEIO_FAIL			5
 #define EXIT_CMD_BUILD_FAILED		6

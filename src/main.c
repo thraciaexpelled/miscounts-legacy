@@ -1,3 +1,6 @@
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wstrict-prototypes"
+
 // -*- includes needed generally -*-
 #include <errno.h>
 #include <stdio.h>
@@ -103,3 +106,5 @@ int main(int argc, char **argv) {
 
 	return 0;
 }
+
+#pragma clang diagnostic pop

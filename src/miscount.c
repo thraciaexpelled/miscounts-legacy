@@ -1,6 +1,7 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wincompatible-pointer-types-discards-qualifiers"
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
+#pragma clang diagnostic ignored "-Wunused-function"
 
 // -*- includes needed generally -*-
 #include <errno.h>
@@ -85,7 +86,6 @@ static inline const char *buildMiscountPath() {
 	}
 
 	const char *documents_dir = path_join(home, "Documents");
-	// exit_if_null(documents_dir, "Do you have your Documents folder in your $HOME?\n", EXIT_PROBABLY_NO_HOME);
   
 	const char *retval = path_join(documents_dir, "miscounts.csv");
 	exit_if_null(retval, "Cannot retrieve files\n", EXIT_CANT_RETRIEVE);
@@ -126,7 +126,6 @@ static int mkMiscountPath() {
 static const char *inferGoodEditor() {
 	if (getenv("EDITOR") == NULL) {
 		#ifdef __WIN32
-		/*
 			fprintf(stderr, "It appears that you're on a Windows-like environment without an $EDITOR variable set.\n");
 			fprintf(stderr, "We'll set the default editor to Notepad for you.\n");
 
@@ -137,9 +136,6 @@ static const char *inferGoodEditor() {
 			}
 
 			return "notepad";
-		*/
-			fprintf(stderr, "Not implemeted for Windows yet!\n");
-			exit(-1);
 		#else
 			return "vi";
 		#endif
@@ -163,7 +159,7 @@ static char *strreplace(char *s, const char *s1, const char *s2) {
 
 static const char *buildCmd(char *cmd, char *args) {
 	char *buffer = malloc(MISCOUNT_BUILD_CMD_MAX_BUFSIZE);
-	if (buffer < MISCOUNT_BUILD_CMD_MAX_BUFSIZE) {
+	if (sizeof(buffer) < MISCOUNT_BUILD_CMD_MAX_BUFSIZE) {
 		fprintf(stderr, "Cannot allocate memory for buffer\n");
 		exit(EXIT_MEM_ERROR);
 	}
@@ -174,29 +170,21 @@ static const char *buildCmd(char *cmd, char *args) {
 }
 
 // Thanks, Vishwesh Pujari!
+// TODO: implement this function to remove lines that had been added during an error.
 static int remove_line_from_file(FILE* fp, int bytes) {
 	char byte;
 	long readPos = ftell(fp) + bytes, writePos = ftell(fp), startingPos = writePos;
-	// start reading from the position which comes after the bytes to be deleted
 	fseek(fp, readPos, SEEK_SET);
+
 	while (fread(&byte, sizeof(byte), 1, fp)) {
-		// modify readPos as we have read right now
 		readPos = ftell(fp);
-		// set file position to writePos as we are going to write now
 		fseek(fp, writePos, SEEK_SET);
-		
-		// if file doesn't have write permission
-		if (fwrite(&byte, sizeof(byte), 1, fp) == 0) 
-			return errno;
-		// modify writePos as we have written right now
+		if (fwrite(&byte, sizeof(byte), 1, fp) == 0) return errno;
 		writePos = ftell(fp);
-		// set file position for reading
 		fseek(fp, readPos, SEEK_SET);
 	}
 
-	// truncate file size to remove the unnecessary ending bytes
-	ftruncate(fileno(fp), writePos);
-	// reset file position to the same position that we got when function was called.
+    ftruncate(fileno(fp), writePos);
 	fseek(fp, startingPos, SEEK_SET); 
 	return 0;
 }
