@@ -52,8 +52,8 @@ static inline bool userDocumentsDirExists() {
 static inline void makeUserDocumentsDir() {
   const char *path = path_join(getUserHomeDir(), "Documents");
   if (mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) != 0) {
-    fprintf(stderr, "%s: %s\n", path, strerror(errno));
-    exit(EXIT_FILEIO_FAIL);
+	fprintf(stderr, "%s: %s\n", path, strerror(errno));
+	exit(EXIT_FILEIO_FAIL);
   }
 }
 
@@ -62,27 +62,27 @@ static int __bmp_tries = 10;
 static inline const char *buildMiscountPath() {
 	const char *home = getUserHomeDir();
 
-  // turns out, stephen's `path-join` package was just a souped up strcat.
-  // we have to do more checks.
-  
-  if (!userDocumentsDirExists()) {
-    fprintf(stderr, "User Document Directory does not exist. Cannot continue\n");
-    printf("Do you want this program to create a Documents directory in your home for you? [y/N] ");
+	// turns out, stephen's `path-join` package was just a souped up strcat.
+	// we have to do more checks.
+	
+	if (!userDocumentsDirExists()) {
+		fprintf(stderr, "User Document Directory does not exist. Cannot continue\n");
+		printf("Do you want this program to create a Documents directory in your home for you? [y/N] ");
 
-    int ans = fgetc(stdin);
-    
-    puts("\n");
+		int ans = fgetc(stdin);
+		
+		puts("\n");
 
-    switch (ans) {
-      case 'y':
-        printf("OK. Re-run your command after we make your directory.");
-        makeUserDocumentsDir();
-        exit(0);
-      default: abort();
-    }
+		switch (ans) {
+		case 'y':
+			printf("OK. Re-run your command after we make your directory.\n");
+			makeUserDocumentsDir();
+			exit(0);
+		default: abort();
+		}
 
-    abort();
-  }
+		abort();
+	}
 
 	const char *documents_dir = path_join(home, "Documents");
 	// exit_if_null(documents_dir, "Do you have your Documents folder in your $HOME?\n", EXIT_PROBABLY_NO_HOME);

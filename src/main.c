@@ -70,12 +70,12 @@ int main(int argc, char **argv) {
 				free(furtheroptions);
 				return 0;
 
-      case 'h':
-        print_help();
+			case 'h':
+				print_help();
 
-        free(args);
-        free(furtheroptions);
-        return 0;
+				free(args);
+				free(furtheroptions);
+				return 0;
 
 			case 'e':
 				furtheroptions->writeDescriptionInEditor = true;
