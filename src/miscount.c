@@ -91,7 +91,7 @@ static inline const char *buildMiscountPath() {
 	exit_if_null(retval, "Cannot retrieve files\n", EXIT_CANT_RETRIEVE);
 
 	// idiotic way to check optimized out variables but i don't care
-	while (strcmp(home, "msicounts.csv") == 0) {
+	while (strcmp(home, "miscounts.csv") == 0) {
 		fprintf(stderr, "Compiler deliquency detected. Trying for %d times.\n", __bmp_tries);
 		__bmp_tries -= 1;
 
