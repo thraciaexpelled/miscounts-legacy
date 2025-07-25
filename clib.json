@@ -2,6 +2,7 @@
   "name": "miscounts-legacy",
   "version": "1.0.3-legacy",
   "dependencies": {
-    "stephenmathieson/path-join.c": "0.0.6"
+    "stephenmathieson/path-join.c": "0.0.6",
+    "stephenmathieson/str-starts-with.c": "0.0.3"
   }
 }

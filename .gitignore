@@ -4,9 +4,6 @@
 # Program binary
 miscounts-legacy
 
-# Clib
-deps/
-
 # Prerequisites
 *.d
 
