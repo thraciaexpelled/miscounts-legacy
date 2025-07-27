@@ -87,17 +87,10 @@ static inline bool userDocumentsDirExists() {
 
 static inline void makeUserDocumentsDir() {
 	const char *path = path_join(getUserHomeDir(), "Documents");
-	#ifdef __linux__
-		if (mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) != 0) {
-			fprintf(stderr, "%s: %s\n", path, strerror(errno));
-			exit(EXIT_FILEIO_FAIL);
-		}
-	#else
-		if (mkdir(path) != 0) {
-			fprintf(stderr, "%s: %s\n", path, strerror(errno));
-			exit(EXIT_FILEIO_FAIL);
-		}
-	#endif
+	if (mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) != 0) {
+		fprintf(stderr, "%s: %s\n", path, strerror(errno));
+		exit(EXIT_FILEIO_FAIL);
+	}
 }
 
 // check comment inside the function for more information
