@@ -20,8 +20,43 @@
 #include <stdarg.h>
 #include <time.h>
 
+#ifdef __WIN32
+
+#include <windows.h>
+#include <shlwapi.h>
+
+#endif
+
 #include "../deps/path-join/path-join.h"
 
+
+// Thanks, Bill Windows!
+#ifdef __WIN32
+static void ErrorExit() { 
+    // Retrieve the system error message for the last-error code
+
+    LPVOID lpMsgBuf;
+    DWORD dw = GetLastError(); 
+
+    if (FormatMessage(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+        FORMAT_MESSAGE_FROM_SYSTEM |
+        FORMAT_MESSAGE_IGNORE_INSERTS,
+        NULL,
+        dw,
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        (LPTSTR) &lpMsgBuf,
+        0, NULL) == 0) {
+        MessageBox(NULL, TEXT("FormatMessage failed"), TEXT("Error"), MB_OK);
+        ExitProcess(dw);
+    }
+
+    MessageBox(NULL, (LPCTSTR)lpMsgBuf, TEXT("Error"), MB_OK);
+
+    LocalFree(lpMsgBuf);
+    ExitProcess(dw); 
+}
+#endif
 
 static void exit_if_null(void *any, char *msg, int code) {
 	if (any == NULL) {
@@ -52,10 +87,17 @@ static inline bool userDocumentsDirExists() {
 
 static inline void makeUserDocumentsDir() {
 	const char *path = path_join(getUserHomeDir(), "Documents");
-	if (mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) != 0) {
-		fprintf(stderr, "%s: %s\n", path, strerror(errno));
-		exit(EXIT_FILEIO_FAIL);
-	}
+	#ifdef __linux__
+		if (mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) != 0) {
+			fprintf(stderr, "%s: %s\n", path, strerror(errno));
+			exit(EXIT_FILEIO_FAIL);
+		}
+	#else
+		if (mkdir(path) != 0) {
+			fprintf(stderr, "%s: %s\n", path, strerror(errno));
+			exit(EXIT_FILEIO_FAIL);
+		}
+	#endif
 }
 
 // check comment inside the function for more information
@@ -124,21 +166,27 @@ static int mkMiscountPath() {
 }
 
 static const char *inferGoodEditor() {
+	#ifdef __WIN32
+		// we use a more advanced get around for this.
+		char goodEditor[MAX_PATH];
+
+		HRESULT hr = AssocQueryString(
+			ASSOCF_NONE,
+			ASSOCSTR_COMMAND,
+			".txt",		//	.miscount_tmp == plain text == .txt == associated with notepad!
+			NULL,
+			goodEditor,
+			(DWORD*)MAX_PATH
+		);
+
+		if (!SUCCEEDED(hr)) ErrorExit();
+		return goodEditor;
+	#endif
+	
+	// should be widely available in many UNIXes
 	if (getenv("EDITOR") == NULL) {
-		#ifdef __WIN32
-			fprintf(stderr, "It appears that you're on a Windows-like environment without an $EDITOR variable set.\n");
-			fprintf(stderr, "We'll set the default editor to Notepad for you.\n");
-
-			if (_putenv("EDITOR=notepad") != 0) {
-				fprintf(stderr, "miscount: cannot add environment variable: %s\n",
-				strerror(errno));
-				exit(-1);
-			}
-
-			return "notepad";
-		#else
-			return "vi";
-		#endif
+		fprintf(stderr, "\nyou should set your default editor\n\n");
+		return "vi";
 	}
 
 	return getenv("EDITOR");
