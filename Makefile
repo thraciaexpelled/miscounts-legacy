@@ -1,9 +1,9 @@
 CC=cc
-CFLAGS=-Wall -Wextra -Wpedantic -march=native -Iinclude/  -ferror-limit=5 -g -O0
+CFLAGS=-Wall -Wextra -Wpedantic -march=native -Iinclude/ -g -O0
 
 # fix for mingw errors
 ifeq "$(CC)" "x86_64-w64-mingw32-gcc"
-	CFLAGS+=-lshlwapi
+	CFLAGS+=-mwindows -L -lshlwapi
 endif
 
 LDFLAGS=

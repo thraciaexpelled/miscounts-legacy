@@ -1,4 +1,4 @@
-#define MISCOUNT_VERSION "1.0.3-legacy"
+#define MISCOUNT_VERSION "1.0.3:1-legacy"
 
 #define MISCOUNT_BUILD_CMD_MAX_BUFSIZE 512
 

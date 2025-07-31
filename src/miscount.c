@@ -23,7 +23,9 @@
 #ifdef __WIN32
 
 #include <windows.h>
-#include <shlwapi.h>
+#include <Shlwapi.h>
+
+#pragma comment(lib, "libshlwapi.a")
 
 #endif
 
@@ -34,7 +36,6 @@
 #ifdef __WIN32
 static void ErrorExit() { 
     // Retrieve the system error message for the last-error code
-
     LPVOID lpMsgBuf;
     DWORD dw = GetLastError(); 
 
@@ -87,10 +88,18 @@ static inline bool userDocumentsDirExists() {
 
 static inline void makeUserDocumentsDir() {
 	const char *path = path_join(getUserHomeDir(), "Documents");
-	if (mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) != 0) {
-		fprintf(stderr, "%s: %s\n", path, strerror(errno));
-		exit(EXIT_FILEIO_FAIL);
-	}
+    
+    #if defined(__WIN32__) || defined(__MINGW32__)
+        if (mkdir(path) != 0) {
+            fprintf(stderr, "%s: %s\n", path, strerror(errno));
+            exit(EXIT_FILEIO_FAIL);
+        }
+    #else
+	    if (mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) != 0) {
+		    fprintf(stderr, "%s: %s\n", path, strerror(errno));
+		    exit(EXIT_FILEIO_FAIL);
+	    }
+    #endif
 }
 
 // check comment inside the function for more information
@@ -178,7 +187,7 @@ static const char *inferGoodEditor() {
 	
 	// should be widely available in many UNIXes
 	if (getenv("EDITOR") == NULL) {
-		fprintf(stderr, "\nyou should set your default editor\n\n");
+		fprintf(stderr, "\nyou should set your default editor, otherwise you may face problems\n\n");
 		return "vi";
 	}
 
@@ -200,13 +209,7 @@ static char *strreplace(char *s, const char *s1, const char *s2) {
 
 static const char *buildCmd(char *cmd, char *args) {
 	char *buffer = malloc(MISCOUNT_BUILD_CMD_MAX_BUFSIZE);
-	if (sizeof(buffer) < MISCOUNT_BUILD_CMD_MAX_BUFSIZE) {
-		fprintf(stderr, "Cannot allocate memory for buffer\n");
-		exit(EXIT_MEM_ERROR);
-	}
-
 	sprintf(buffer, "%s %s", cmd, args);
-
 	return buffer;
 }
 
@@ -307,7 +310,7 @@ int miscount_append_miscount(MiscountParams *m) {
 		}
 
 		free(tmpbuf);
-		// free(cmd);
+		free(cmd);
 	}
 
 	fclose(miscountFile);
